@@ -47,6 +47,7 @@ Saya menggunakan font Montserrat pada website ini
 Responsive untuk tampilan desktop, hp, dan tablet
 ![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_111724_localhost.jpeg)
 ![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_111753_localhost.jpeg)
+![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_11218_localhost.jpeg)
 
 
 
@@ -120,6 +121,7 @@ Pada saat user melakukan login, password yang user masukkan akan di verifikasi d
    </div>
 </form>
 ```
+
 Saat melakukan submit login form, password yang user masukkan akan diverifikasi pada login.php sebagai berikut:
 ```php
 <?php
@@ -192,7 +194,8 @@ Saat melakukan submit login form, password yang user masukkan akan diverifikasi 
 ### - Konten dinamis
 
 #### Menampilkan nama user yang log in saat ini
-Cara menampilkan nama user yang login saat ini adalah dengan mendapatkan id_user terlebih dahulu dari email yang telah tersimpan pada saat user melakukan login, yaitu dengan ``` session_start();``` dan ```$email = $_SESSION['email'];``` yang sebelumnnya telah tersimpan di login.php 
+Cara menampilkan nama user yang login saat ini adalah dengan mendapatkan id_user terlebih dahulu dari email yang telah tersimpan pada saat user melakukan login, yaitu dengan ```session_start();``` dan ```$email = $_SESSION['email'];``` yang sebelumnnya telah tersimpan di login.php
+
 ```php
 <?php
     session_start();
@@ -226,6 +229,7 @@ Cara menampilkan nama user yang login saat ini adalah dengan mendapatkan id_user
     $conn->close();
 ?>
 ```
+
 Setelah itu, baru menjalankan query untuk mendapatkan nama_user
 ```php
    <?php
@@ -247,6 +251,7 @@ Setelah itu, baru menjalankan query untuk mendapatkan nama_user
             }
    ?>
 ```
+
 #### Menampilkan kelas yang dimiliki oleh user
 id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id_user'];```. id_user ini digunakan untuk menampilkan kelas yang dimiliki oleh user.
 ```php
@@ -357,7 +362,7 @@ Lalu untuk announcement, saya menampilkan announcement dengan get id_kelas juga 
 ```
 
 #### Menampilkan tugas dari setiap kelas yang dimiliki oleh user
-Untuk menampilkan tugas yang ada di kelas itu, 
+Untuk menampilkan tugas yang ada di kelas itu, saya mengambil get id_kelas dan id_user. Disini akan tampil tugas, tenggat, dan nilai tugas.
 
 ```php
 <?php
