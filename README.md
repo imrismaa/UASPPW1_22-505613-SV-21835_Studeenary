@@ -399,6 +399,7 @@ Untuk menampilkan tugas yang ada di kelas itu, saya mengambil get id_kelas dan i
 ```
 
 #### Menampilkan guru dan murid pada kelas yang dimiliki oleh user
+Untuk menampilkan guru, diambil dari id_kelas karena disana ada id_user yang bertindak sebagai guru
 ```php
 <div class="people-box col-md-6 offset-md-3">
    <h3 class="people-role pb-2 mb-0">Teacher</h3>
@@ -430,7 +431,7 @@ Untuk menampilkan tugas yang ada di kelas itu, saya mengambil get id_kelas dan i
 </div>
 ```
 
-
+Untuk menampilkan classmates pada kelas terkait
 ```php
 <div class="people-box col-md-6 offset-md-3">
    <h3 class="people-role pb-2 mb-0">Classmates</h3>
