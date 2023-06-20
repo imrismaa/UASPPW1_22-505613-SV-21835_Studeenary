@@ -23,16 +23,34 @@ Pada website ini, saya mencoba untuk menampilkan design yang rapi dengan menggun
 }
 ```
 Selain itu, saya juga membuat seluruh box maupun button dengan border-radius yang konsisten, yaitu sebesar 0.375rem.
-Tampilan ketika LOG IN
+
+- Tampilan ketika LOG IN
 ![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_7140_localhost.jpeg)
 
-Tampilan ketika SIGN UP
+- Tampilan ketika SIGN UP
 ![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_71412_localhost.jpeg)
+
+Saya menggunakan font Montserrat pada website ini
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Quicksand&display=swap');
+* {
+   line-height: 1.8;
+   color: #393b43;
+   font-size: 15px;
+   font-weight: 600;
+   font-family: 'Montserrat', sans-serif;
+}
+```
+
 ### - Website esponsive
+
+
+
 
 ### - Direct feedback
 #### REGISTER FORM
-Pada tampilan awal website, user akan diarahkan ke halaman register account terlebih dahulu. Setelah melakukan register, data user akan dimasukkan ke dalam database. Password yang user masukkan akan disimpan dengan fungsi hash pada prosedur SQL yang telah dibuat.
+Pada tampilan awal website, user akan diarahkan ke halaman register account terlebih dahulu. Setelah melakukan register, data user akan dimasukkan ke dalam database. Password yang user masukkan akan disimpan dengan fungsi password_hash pada prosedur SQL yang telah dibuat agar id_user dapat diinput dengan auto increment.
 ```php
 <?php
     session_start();
@@ -63,8 +81,8 @@ Pada tampilan awal website, user akan diarahkan ke halaman register account terl
 ?>
 ```
 
-
 #### LOGIN FORM
+Pada saat user melakukan login, password yang user masukkan akan di verifikasi dengan fungsi password_verify. Ketika password tersebut valid, baru user bisa masuk ke page selanjutnya yang menampilkan kelas kelas yang user miliki.
 ```html
 <form method="POST" action="login.php">
    <div class="form-icon">
@@ -134,6 +152,40 @@ Saat melakukan submit login form, password yang user masukkan akan diverifikasi 
     $conn->close();
 ?>
 ```
+- verifikasi password
+  ```php
+  <?php
+    session_start();
+    include "connection.php";
+
+    $errorMessage = "";
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+
+        $sql = "SELECT password FROM user WHERE email = '$email'";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $hashedPassword = $user['password'];
+
+            if (password_verify($password, $hashedPassword)) {
+                header("Location: classes.php");
+                $_SESSION['email'] = $email;
+                exit;
+            } else {
+                echo "<script>alert('Incorrect email or password');</script>";
+            }
+        } else {
+            echo "<script>alert('User not found!');</script>";
+        }
+    }
+
+    $conn->close();
+?>
+  ```
 
 ### - Konten dinamis
 
@@ -240,6 +292,8 @@ id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id
 ?>
 ```
 #### Menampilkan subject kelas dan deskripsi untuk header kelas dan menampilkan announcement kelas dari setiap kelas yang dimiliki oleh user
+Ketika user menekan button VIEW CLASS, user akan diarahkan untuk masuk ke dalam kelas tersebut yang berisi header kelas (sekaligus deskripsi), announcement, classwork, dan people yang berisi siapa teacher dan classmates user. Untuk menampilkan deskripsi, saya menyimpan id_kelas terlebih dahulu dari page sebelumnya agar dapat ditampilkan content kelas yang related dengan kelas yang di klik. 
+Lalu untuk announcement, saya menampilkan announcement dengan get id_kelas juga dan menampilkannnya secara urut berdasarkan tanggal terbaru.
 ```php
 <?php
    session_start();
@@ -301,6 +355,8 @@ id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id
 ```
 
 #### Menampilkan tugas dari setiap kelas yang dimiliki oleh user
+Untuk menampilkan tugas yang ada di kelas itu, 
+
 ```php
 <?php
    $id_kelas = $_SESSION['id_kelas'];
