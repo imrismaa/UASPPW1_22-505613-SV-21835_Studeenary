@@ -10,11 +10,16 @@ Website ini dapat membantu para pelajar maupun mahasiswa dan tenaga pendidik dal
 Pada website ini, saya mencoba untuk menampilkan design yang rapi dengan menggunakan color pallete yang senada dan konsisten, yaitu :
 ```css
 :root {
+   --abu: #403c3c;
+   --abu-muda:#cbcbcb;
+
    --1blue: #194a7a;
    --2blue: #476f95; 
    --3blue: #7593af;
    --4blue: #a3b7ca;
    --5blue: #d1dbe4;
+
+   --darker-than-1blue: #143b62;
 }
 ```
 Selain itu, saya juga membuat seluruh box maupun button dengan border-radius yang konsisten, yaitu sebesar 0.375rem.
@@ -26,7 +31,109 @@ Tampilan ketika SIGN UP
 ### - Website esponsive
 
 ### - Direct feedback
-login, register account
+#### REGISTER FORM
+Pada tampilan awal website, user akan diarahkan ke halaman register account terlebih dahulu. Setelah melakukan register, data user akan dimasukkan ke dalam database. Password yang user masukkan akan disimpan dengan fungsi hash pada prosedur SQL yang telah dibuat.
+```php
+<?php
+    session_start();
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "elearning_space";
+
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Koneksi gagal: " . $conn->connect_error);
+    }
+
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $sql = "CALL add_user('$name', '$email', '$hashedPassword')";
+        $result = $conn->query($sql);
+        if (!$result) { echo "Query gagal: " . $conn->error; }
+    }
+
+
+    $conn->close();
+?>
+```
+
+
+#### LOGIN FORM
+```html
+<form method="POST" action="login.php">
+   <div class="form-icon">
+      <img src="assets/graduated.png" width="70" height="auto">
+   </div>
+   <div class="form-group">
+      <input type="email" name="email" class="form-control item" id="email" placeholder="Email" required>
+   </div>
+   <div class="form-group">
+      <input type="password" name="password" class="form-control item" id="password" placeholder="Password" required>
+   </div>
+   <div class="form-group">
+      <button type="submit" class="btn btn-lg create-account btn-primary w-100 fs-6">Log in</button>
+   </div>
+   <div class="form-group">
+      <button class="btn btn-lg google w-100 fs-6 my-2">
+         <img src="assets/google.png" style="width:20px" class="me-2"><small>Continue with Google</small>
+      </button>
+   </div>
+   <div class="input-group my-3 d-flex justify-content-between">
+      <div class="form-check">
+         <input type="checkbox" class="form-check-input" id="formCheck">
+         <label for="formCheck" class="form-check-label text-secondary">
+            <small>Remember me</small>
+         </label>
+      </div>
+      <div class="forgot">
+         <small><a href="#">Forgot Password?</a></small>
+      </div>
+   </div>
+   <div class="row">
+      <small align="center">Don't have any account? <a href="register.php"> SIGN UP </a></small>
+   </div>
+</form>
+```
+Saat melakukan submit login form, password yang user masukkan akan diverifikasi pada login.php sebagai berikut:
+```php
+<?php
+    session_start();
+    include "connection.php";
+
+    $errorMessage = "";
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+
+        $sql = "SELECT password FROM user WHERE email = '$email'";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $hashedPassword = $user['password'];
+
+            if (password_verify($password, $hashedPassword)) {
+                header("Location: classes.php");
+                $_SESSION['email'] = $email;
+                exit;
+            } else {
+                echo "<script>alert('Incorrect email or password');</script>";
+            }
+        } else {
+            echo "<script>alert('User not found!');</script>";
+        }
+    }
+
+    $conn->close();
+?>
+```
 
 ### - Konten dinamis
 
@@ -228,21 +335,21 @@ id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id
 
 #### Menampilkan guru dan murid pada kelas yang dimiliki oleh user
 ```php
- <div class="people-box col-md-6 offset-md-3">
-      <h3 class="people-role pb-2 mb-0">Teacher</h3>
-        <?php
-          include "connection.php";
+<div class="people-box col-md-6 offset-md-3">
+   <h3 class="people-role pb-2 mb-0">Teacher</h3>
+      <?php
+         include "connection.php";
 
-          $id_kelas = $_SESSION['id_kelas'];
-          $sql = "
+         $id_kelas = $_SESSION['id_kelas'];
+         $sql = "
             SELECT u.nama_user
             FROM kelas AS k
             JOIN user AS u ON u.id_user = k.id_user
             WHERE k.id_kelas = '$id_kelas';
           ";
 
-          $result = mysqli_query($conn, $sql);
-          foreach ($result as $row) {
+         $result = mysqli_query($conn, $sql);
+         foreach ($result as $row) {
             echo "
               <div class='d-flex text-body-secondary pt-3'>
                 <div class='each-people pb-3 mb-0 small lh-sm w-100'>
@@ -255,39 +362,39 @@ id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id
             ";
           }
         ?>
-    </div>
+</div>
 ```
 
 
 ```php
- <div class="people-box col-md-6 offset-md-3">
-      <h3 class="people-role pb-2 mb-0">Classmates</h3>
-        <?php
-          include "connection.php";
+<div class="people-box col-md-6 offset-md-3">
+   <h3 class="people-role pb-2 mb-0">Classmates</h3>
+      <?php
+         include "connection.php";
 
-          $id_kelas = $_SESSION['id_kelas'];
-          $sql = "
+         $id_kelas = $_SESSION['id_kelas'];
+         $sql = "
             SELECT u.nama_user
             FROM anggota_kelas AS ak
             JOIN kelas AS k ON ak.id_kelas = k.id_kelas
             JOIN user AS u ON ak.id_user = u.id_user
             WHERE k.id_kelas = '$id_kelas'
             ORDER BY u.nama_user ASC;
-            ";
+         ";
 
-          $result = mysqli_query($conn, $sql);
-          foreach ($result as $row) {
+         $result = mysqli_query($conn, $sql);
+         foreach ($result as $row) {
             echo "
-              <div class='d-flex text-body-secondary pt-3'>
-                <div class='each-people pb-3 mb-0 small lh-sm w-100'>
-                  <div class='justify-content-between'>
-                    <img class='people-profile' src='assets/account.png' width='25' height='auto'>
-                    <strong class='people-profile text-gray-dark'>". $row['nama_user'] . "</strong>
+               <div class='d-flex text-body-secondary pt-3'>
+                  <div class='each-people pb-3 mb-0 small lh-sm w-100'>
+                     <div class='justify-content-between'>
+                        <img class='people-profile' src='assets/account.png' width='25' height='auto'>
+                        <strong class='people-profile text-gray-dark'>". $row['nama_user'] . "</strong>
+                     </div>
                   </div>
-                </div>
-              </div>
+               </div>
             ";
           }
-        ?>
-    </div>
+      ?>
+</div>
 ```
