@@ -113,7 +113,9 @@ id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id
                         <p class='card-text'>". $row['nama_kelas'] ."</p>
                            <div class='d-flex justify-content-between align-items-center'>
                               <div class='btn-group'>
-                                 <a href='on-class.php?id_kelas=". $row['id_kelas'] ."'><button type='button' class='btn btn-brand btn-outline-secondary'>View Class</button></a>
+                                 <a href='on-class.php?id_kelas=". $row['id_kelas'] ."'>
+                                    <button type='button' class='btn btn-brand btn-outline-secondary'>View Class</button>
+                                 </a>
                               </div>
                            </div>
                   </div>
@@ -124,8 +126,162 @@ id_user yang login saat ini telah disimpan di ```$_SESSION['id_user'] = $row['id
    }
 ?>
 ```
+#### Menampilkan subject kelas dan deskripsi untuk header kelas dan menampilkan announcement kelas dari setiap kelas yang dimiliki oleh user
+```php
+<?php
+   session_start();
+      include "connection.php";
+      if (isset($_GET['id_kelas'])) {
+         $id_kelas = $_GET['id_kelas'];
+         $_SESSION['id_kelas'] = $id_kelas;
+          
+         $sql = "
+            SELECT subject, deskripsi
+            FROM kelas
+            WHERE id_kelas = '$id_kelas';
+         ";
+          
+         $result = mysqli_query($conn, $sql);
+         foreach ($result as $row) {
+            echo '
+               <div class="stream-box col-md-6 offset-md-3">
+                  <h2 class="people-role pb-2 mb-0" align="center">' . $row['subject'] . '</h2>
+                  <div class="d-flex text-body-secondary pt-3">
+                     <div class="pb-3 mb-0 small lh-sm w-100">
+                        <div class="d-flex justify-content-between">
+                           <strong>' . $row['deskripsi'] . '</strong>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            ';
+         }
 
-#### Menampilkan announcement kelas dari setiap kelas yang dimiliki oleh user
+        $sql = "
+           SELECT u.nama_user, a.announcement, a.tanggal
+           FROM kelas AS k
+           JOIN user AS u ON u.id_user = k.id_user
+           JOIN announcement AS a ON a.id_kelas = k.id_kelas
+           WHERE k.id_kelas = '$id_kelas'
+           ORDER BY a.tanggal DESC;
+         ";
+
+        $result = mysqli_query($conn, $sql);
+        foreach ($result as $row) {
+            $date = date("d F Y", strtotime($row['tanggal']));
+            echo "
+               <div class='announcement-box col-md-6 offset-md-3'>
+                  <div class='d-flex text-body-secondary pt-3'>
+                     <div class='pb-3 mb-0 small lh-sm w-100'>
+                        <h6>" . $row['nama_user'] . "</h6>
+                        <div class='d-flex justify-content-between'>
+                           <strong>" . $row['announcement'] . "</strong>
+                        </div>
+                        <small class='date'>" . $date . "</small>
+                     </div>
+                  </div>
+               </div>
+         ";
+      }
+   }
+?>
+```
 
 #### Menampilkan tugas dari setiap kelas yang dimiliki oleh user
+```php
+<?php
+   $id_kelas = $_SESSION['id_kelas'];
+   $id_user = $_SESSION['id_user'];
+   include "connection.php";
+
+   $sql = "
+      SELECT nama_tugas, tenggat, nilai 
+      FROM tugas_view
+      WHERE id_user = '$id_user' AND id_kelas = '$id_kelas';
+   ";
+
+   $result = mysqli_query($conn, $sql);
+
+   foreach ($result as $row) {
+      $date = date("d F Y", strtotime($row['tenggat']));
+         echo "
+            <div class='d-flex text-body-secondary pt-3'>
+               <div class='each-people pb-3 mb-0 small lh-sm w-100'>
+                  <div class='d-flex justify-content-between'>
+                     <img src='assets/homework.png' width='40' height='auto'>
+                     <strong class='text-gray-dark' align='left'>" . $row['nama_tugas'] . "</strong>
+                     <span class='d-block'>" . $date . "</span>
+                     <p>" . $row['nilai'] . "/100</p>
+                  </div>
+               </div>
+            </div>
+         ";
+   }
+?>
+```
+
 #### Menampilkan guru dan murid pada kelas yang dimiliki oleh user
+```php
+ <div class="people-box col-md-6 offset-md-3">
+      <h3 class="people-role pb-2 mb-0">Teacher</h3>
+        <?php
+          include "connection.php";
+
+          $id_kelas = $_SESSION['id_kelas'];
+          $sql = "
+            SELECT u.nama_user
+            FROM kelas AS k
+            JOIN user AS u ON u.id_user = k.id_user
+            WHERE k.id_kelas = '$id_kelas';
+          ";
+
+          $result = mysqli_query($conn, $sql);
+          foreach ($result as $row) {
+            echo "
+              <div class='d-flex text-body-secondary pt-3'>
+                <div class='each-people pb-3 mb-0 small lh-sm w-100'>
+                  <div class='justify-content-between'>
+                    <img class='people-profile' src='assets/account.png' width='25' height='auto'>
+                    <strong class='people-profile text-gray-dark'>". $row['nama_user'] . "</strong>
+                  </div>
+                </div>
+              </div>
+            ";
+          }
+        ?>
+    </div>
+```
+
+
+```php
+ <div class="people-box col-md-6 offset-md-3">
+      <h3 class="people-role pb-2 mb-0">Classmates</h3>
+        <?php
+          include "connection.php";
+
+          $id_kelas = $_SESSION['id_kelas'];
+          $sql = "
+            SELECT u.nama_user
+            FROM anggota_kelas AS ak
+            JOIN kelas AS k ON ak.id_kelas = k.id_kelas
+            JOIN user AS u ON ak.id_user = u.id_user
+            WHERE k.id_kelas = '$id_kelas'
+            ORDER BY u.nama_user ASC;
+            ";
+
+          $result = mysqli_query($conn, $sql);
+          foreach ($result as $row) {
+            echo "
+              <div class='d-flex text-body-secondary pt-3'>
+                <div class='each-people pb-3 mb-0 small lh-sm w-100'>
+                  <div class='justify-content-between'>
+                    <img class='people-profile' src='assets/account.png' width='25' height='auto'>
+                    <strong class='people-profile text-gray-dark'>". $row['nama_user'] . "</strong>
+                  </div>
+                </div>
+              </div>
+            ";
+          }
+        ?>
+    </div>
+```
