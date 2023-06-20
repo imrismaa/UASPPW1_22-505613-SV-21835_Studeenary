@@ -44,7 +44,9 @@ Saya menggunakan font Montserrat pada website ini
 ```
 
 ### - Website esponsive
-
+Responsive untuk tampilan desktop, hp, dan tablet
+![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_111724_localhost.jpeg)
+![image](https://github.com/imrismaa/UASPPW1_22-505613-SV-21835_Studeenary/blob/main/assets/Web%20capture_20-6-2023_111753_localhost.jpeg)
 
 
 
