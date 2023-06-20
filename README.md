@@ -189,7 +189,8 @@ Saat melakukan submit login form, password yang user masukkan akan diverifikasi 
 
     $conn->close();
 ?>
-  ```
+```
+```
 
 ### - Konten dinamis
 
